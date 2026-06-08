@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up" signInFallbackRedirectUrl="/dashboard" signUpFallbackRedirectUrl="/dashboard">
       <html lang="en" className="h-full antialiased" suppressHydrationWarning>
         <head />
         <body className={`${inter.variable} ${poppins.variable} font-sans min-h-full flex bg-[var(--color-bg-main)] text-white selection:bg-[#4C1D95] selection:text-white`}>
