@@ -1,0 +1,80 @@
+Connect to Redis to verify:
+redis-cli -p 6380 ping
+Should return PONG
+
+# Terminal 1 - Start Redis
+redis-server --port 6380
+        or
+Terminal 1 : run redis
+$env:REDIS_URL = "redis://localhost:6380/0"
+
+Terminal 2 (API service):
+$env:REDIS_URL = "redis://localhost:6380/0"
+cd kairo-backend
+go run ./cmd/api
+
+Terminal 3 (Engine service):
+$env:REDIS_URL = "redis://localhost:6380/0"
+cd kairo-backend
+go run ./cmd/engine
+
+Terminal 4 (Frontend):
+npm run dev
+    or 
+npm run build
+npm start
+
+====================== Redis ============================
+
+# Check if Redis is running
+redis-cli -p 6380 ping
+# Returns: PONG
+
+# Get comprehensive server info
+redis-cli -p 6380 info
+
+# Get memory and performance stats
+redis-cli -p 6380 info stats
+
+# Check connected clients
+redis-cli -p 6380 client list
+
+# Count total number of connected clients
+redis-cli -p 6380 info clients
+
+# Check which databases have data
+redis-cli -p 6380 info keyspace
+
+# Check specific database size (database 0)
+redis-cli -p 6380 -n 0 dbsize
+
+# List all keys in current database
+redis-cli -p 6380 keys "*"
+
+# Check memory usage
+redis-cli -p 6380 info memory
+
+
+====================== Redis is not running =====================
+
+Redis is not running. The "connection refused" error means the server isn't listening on port 6380.
+You need to start Redis first before running any commands. Based on your run.txt, you should:
+
+Option 1: Start Redis locally (if installed)
+# Terminal 1 - Start Redis
+redis-server --port 6380
+
+Option 2: Using Docker (if you have it)
+docker run -d -p 6380:6379 redis:latest
+
+Option 3: Check if Redis is installed
+redis-server --version
+
+If you get "redis-server is not recognized", you need to install Redis first. On Windows:
+
+Download from redis.io or use WSL2
+Or use Docker (recommended)
+
+After starting Redis, try the ping command again:
+redis-cli -p 6380 ping
+# Should return: PONG

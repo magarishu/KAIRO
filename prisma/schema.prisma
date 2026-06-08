@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String       @id // Clerk user ID
+  email       String       @unique
+  name        String?
+  groups             Group[]
+  connections        Connection[]
+  razorpayCustomerId String?
+  razorpayOrderId    String?
+  subscriptionTier   String       @default("FREE")
+  subscriptionStatus String       @default("INACTIVE")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Connection {
+  id               String   @id @default(uuid())
+  broker           String
+  name             String
+  accountId        String
+  metaApiAccountId String?  @unique
+  tradovateToken   String?  @db.Text // Long tokens
+  tradovateEnv     String?  // 'Live' or 'Demo'
+  rithmicToken     String?  @db.Text // Optional token if using a gateway
+  password         String?  // Note: Only used during provisioning, ideally cleared after
+  server           String?
+  status           String   @default("ONLINE")
+  equity           Float    @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  riskRule  RiskRule?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RiskRule {
+  id           String     @id @default(uuid())
+  connectionId String     @unique
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  wpLimit      Float      @default(0)
+  wpStatus     String     @default("DISABLED") // ENABLED, DISABLED
+  wlLimit      Float      @default(0)
+  wlStatus     String     @default("DISABLED")
+  dpLimit      Float      @default(0)
+  dpStatus     String     @default("DISABLED")
+  dlLimit      Float      @default(0)
+  dlStatus     String     @default("DISABLED")
+  trailingDd   String     @default("N/A")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Group {
+  id            String         @id @default(uuid())
+  name          String
+  accountId     String
+  subtitle      String?
+  icon          String?
+  iconColor     String?
+  iconBg        String?
+  status        String         @default("ACTIVE") // ACTIVE, PAUSED
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  slaves        SlaveAccount[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model SlaveAccount {
+  id         String   @id @default(uuid())
+  name       String
+  accountId  String
+  broker     String
+  status     String   @default("SYNCED")
+  balance    Float    @default(0)
+  pnl        Float    @default(0)
+  multiplier Float    @default(1.0)
+  copySl     Boolean  @default(true)
+  copyTp     Boolean  @default(true)
+  groupId    String
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
